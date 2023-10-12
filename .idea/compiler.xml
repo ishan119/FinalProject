@@ -9,6 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="Hotel Micro Service" />
         <module name="Guide Micro Service" />
+        <module name="Travel Package Micro Service" />
         <module name="Vehical Micro Service" />
         <module name="User Micro Service" />
       </profile>
@@ -17,6 +18,7 @@
       <module name="Guide Micro Service" target="17" />
       <module name="Hotel Micro service" target="17" />
       <module name="Hotel Micro Service" target="17" />
+      <module name="Travel Package Micro Service" target="17" />
       <module name="User Micro Service" target="17" />
       <module name="Vehical Micro Service" target="17" />
     </bytecodeTargetLevel>
@@ -26,6 +28,7 @@
       <module name="Guide Micro Service" options="-parameters" />
       <module name="Hotel Micro Service" options="-parameters" />
       <module name="Hotel Micro service" options="-parameters" />
+      <module name="Travel Package Micro Service" options="-parameters" />
       <module name="User Micro Service" options="-parameters" />
       <module name="Vehical Micro Service" options="-parameters" />
     </option>
