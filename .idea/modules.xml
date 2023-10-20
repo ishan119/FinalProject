@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/AUthentication Micro Service/AUthentication Micro Service.iml" filepath="$PROJECT_DIR$/AUthentication Micro Service/AUthentication Micro Service.iml" />
       <module fileurl="file://$PROJECT_DIR$/Guide Micro Service/Guide Micro Service.iml" filepath="$PROJECT_DIR$/Guide Micro Service/Guide Micro Service.iml" />
       <module fileurl="file://$PROJECT_DIR$/Hotel Micro Service/Hotel Micro Service.iml" filepath="$PROJECT_DIR$/Hotel Micro Service/Hotel Micro Service.iml" />
       <module fileurl="file://$PROJECT_DIR$/Travel Package Micro Service/Travel Package Micro Service.iml" filepath="$PROJECT_DIR$/Travel Package Micro Service/Travel Package Micro Service.iml" />

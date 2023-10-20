@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TravelPackageDTO {
-    private int tpid;
+    private String tpid;
     private String category;
     private Boolean petAllow;
     private int vehicleId;

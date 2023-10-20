@@ -1,0 +1,16 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="Travel Package Micro Service:war">
+    <output-path>$PROJECT_DIR$/Travel Package Micro Service/target</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <exploded>false</exploded>
+        <module>Travel Package Micro Service</module>
+        <packaging>war</packaging>
+        <unpackNestedArchives>false</unpackNestedArchives>
+      </options>
+    </properties>
+    <root id="archive" name="Travel_Package_Micro_Service-0.0.1-SNAPSHOT.war">
+      <element id="artifact" artifact-name="Travel Package Micro Service:war exploded" />
+    </root>
+  </artifact>
+</component>

@@ -1,0 +1,16 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="Authencation Micro Service:war">
+    <output-path>$PROJECT_DIR$/Authencation Micro Service/target</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <exploded>false</exploded>
+        <module>Authencation Micro Service</module>
+        <packaging>war</packaging>
+        <unpackNestedArchives>false</unpackNestedArchives>
+      </options>
+    </properties>
+    <root id="archive" name="authenticate_micro_service-0.0.1-SNAPSHOT.war">
+      <element id="artifact" artifact-name="Authencation Micro Service:war exploded" />
+    </root>
+  </artifact>
+</component>
