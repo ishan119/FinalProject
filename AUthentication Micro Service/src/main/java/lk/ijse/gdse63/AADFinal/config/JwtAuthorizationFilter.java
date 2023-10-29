@@ -20,43 +20,44 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class JwtAuthorizationFilter  extends OncePerRequestFilter {
+public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-
     private final ObjectMapper mapper;
 
-    public JwtAuthorizationFilter(JwtUtil jwtUtil, ObjectMapper mapper){
+    public JwtAuthorizationFilter(JwtUtil jwtUtil, ObjectMapper mapper) {
         this.jwtUtil = jwtUtil;
         this.mapper = mapper;
     }
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        Map<String, Object> erroDetails = new HashMap<>();
+        Map<String, Object> errorDetails = new HashMap<>();
         System.out.println("Filtering internal start");
         try {
             String accessToken = jwtUtil.resolveToken(request);
-            if (accessToken == null){
+            if (accessToken == null ) {
                 filterChain.doFilter(request, response);
                 return;
             }
             System.out.println("token : "+accessToken);
-            Claims claims = jwtUtil.resoleClaims(request);
+            Claims claims = jwtUtil.resolveClaims(request);
 
-            if (claims != null & jwtUtil.validateClaims(claims)){
+            if(claims != null & jwtUtil.validateClaims(claims)){
                 String email = claims.getSubject();
-                System.out.println("Email : "+email);
-                Authentication authentication = new UsernamePasswordAuthenticationToken(email,"",new ArrayList<>());
+                System.out.println("email : "+email);
+                Authentication authentication =
+                        new UsernamePasswordAuthenticationToken(email,"",new ArrayList<>());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
+
         }catch (Exception e){
-            erroDetails.put("message", "Authentication Error");
-            erroDetails.put("details",e.getMessage());
+            errorDetails.put("message", "Authentication Error");
+            errorDetails.put("details",e.getMessage());
             response.setStatus(HttpStatus.FORBIDDEN.value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-            mapper.writeValue(response.getWriter(), erroDetails);
+            mapper.writeValue(response.getWriter(), errorDetails);
+
         }
         filterChain.doFilter(request, response);
     }

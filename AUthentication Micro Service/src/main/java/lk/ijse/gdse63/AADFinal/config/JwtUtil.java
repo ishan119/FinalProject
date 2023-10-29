@@ -3,72 +3,85 @@ package lk.ijse.gdse63.AADFinal.config;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lk.ijse.gdse63.AADFinal.dto.AdminDTO;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
-import javax.naming.AuthenticationException;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Component
 public class JwtUtil {
-    private final String secrey_key = "mysecretkey";
+    private final String secret_key = "mysecretkey";
     private long accessTokenValidity = 60*60*1000;
+
     private final JwtParser jwtParser;
+
     private final String TOKEN_HEADER = "Authorization";
-    private final String TOKEN_PREFIX = "Bearer";
+    private final String TOKEN_PREFIX = "Bearer ";
+
     public JwtUtil(){
-        this.jwtParser = Jwts.parser().setSigningKey(secrey_key);
+        this.jwtParser = Jwts.parser().setSigningKey(secret_key);
     }
 
-    public String createToken(AdminDTO user){
+    public String createToken(AdminDTO user) {
         Claims claims = Jwts.claims().setSubject(user.getEmail());
-        claims.put("userName", user.getUsername());
-        claims.put("userPassword", user.getPassword());
+        claims.put("userName",user.getUsername());
+        claims.put("userPassword",user.getPassword());
+        claims.put("roles",user.getType());
         Date tokenCreateTime = new Date();
         Date tokenValidity = new Date(tokenCreateTime.getTime() + TimeUnit.MINUTES.toMillis(accessTokenValidity));
         return Jwts.builder()
                 .setClaims(claims)
                 .setExpiration(tokenValidity)
-                .signWith(SignatureAlgorithm.HS256, secrey_key)
+                .signWith(SignatureAlgorithm.HS256, secret_key)
                 .compact();
     }
 
-    private Claims parseJwtClaims(String token){
+    private Claims parseJwtClaims(String token) {
         return jwtParser.parseClaimsJws(token).getBody();
     }
-    public Claims resoleClaims(HttpServletRequest req){
+
+    public Claims resolveClaims(HttpServletRequest req) {
         try {
             String token = resolveToken(req);
-            if (token != null){
+            if (token != null) {
                 return parseJwtClaims(token);
             }
             return null;
-        }catch (ExpiredJwtException ex){
-            req.setAttribute("expired :", ex.getMessage());
+        } catch (ExpiredJwtException ex) {
+            req.setAttribute("expired", ex.getMessage());
             throw ex;
-        }catch (Exception ex){
+        } catch (Exception ex) {
             req.setAttribute("invalid", ex.getMessage());
             throw ex;
         }
     }
 
-    public String resolveToken(HttpServletRequest request){
+    public String resolveToken(HttpServletRequest request) {
+
         String bearerToken = request.getHeader(TOKEN_HEADER);
-        if (bearerToken != null && bearerToken.startsWith(TOKEN_PREFIX)){
+        if (bearerToken != null && bearerToken.startsWith(TOKEN_PREFIX)) {
             return bearerToken.substring(TOKEN_PREFIX.length());
         }
         return null;
     }
 
-    public boolean validateClaims(Claims claims) throws AuthenticationException{
+    public boolean validateClaims(Claims claims) throws AuthenticationException {
         try {
             return claims.getExpiration().after(new Date());
-        }catch (Exception e){
+        } catch (Exception e) {
             throw e;
         }
     }
-    public String getEmail(Claims claims) {return claims.getSubject();}
 
-    private List<String> getRoles(Claims claims) {return (List<String>) claims.get("roles");}
+    public String getEmail(Claims claims) {
+        return claims.getSubject();
+    }
+
+    private List<String> getRoles(Claims claims) {
+        return (List<String>) claims.get("roles");
+    }
+
+
 }

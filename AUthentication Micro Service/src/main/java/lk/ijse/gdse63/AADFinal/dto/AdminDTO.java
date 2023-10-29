@@ -5,15 +5,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 public class AdminDTO {
     private int id;
     private String username;
     private String password;
     private String email;
-    private String type;
-
+    private ArrayList<String> type;
 }
