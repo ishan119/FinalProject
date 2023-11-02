@@ -1,14 +1,14 @@
-package lk.ijse.gdse63.AADFinal.dto;
-
+package lk.ijse.gdse63.AADFinal.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+import org.springframework.data.annotation.Id;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TravelPackageDTO {
+public class TravelPackage extends SuperEntity{
+    @Id
     private String id;
     private int hotelCount;
     private int areaCount;
