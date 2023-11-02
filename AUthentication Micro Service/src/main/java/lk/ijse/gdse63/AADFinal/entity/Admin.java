@@ -17,6 +17,7 @@ public class Admin {
     private String type;
 
     public Admin() {
+
     }
 
     public Admin(int id, String username, String password, String usernic, String email, String type) {

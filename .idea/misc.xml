@@ -3,6 +3,7 @@
   <component name="FrameworkDetectionExcludesConfiguration">
     <file type="web" url="file://$PROJECT_DIR$/Authencation Micro Service" />
     <file type="web" url="file://$PROJECT_DIR$/AUthentication Micro Service" />
+    <file type="web" url="file://$PROJECT_DIR$/Guide Micro Service" />
     <file type="web" url="file://$PROJECT_DIR$/Hotel Micro Service" />
     <file type="web" url="file://$PROJECT_DIR$/Travel Package Micro Service" />
     <file type="web" url="file://$PROJECT_DIR$/User Micro Service" />

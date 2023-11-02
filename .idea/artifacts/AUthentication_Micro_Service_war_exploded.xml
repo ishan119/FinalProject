@@ -82,6 +82,7 @@
           <element id="library" level="project" name="Maven: org.springframework:spring-jcl:6.0.12" />
           <element id="library" level="project" name="Maven: org.springframework.security:spring-security-core:6.1.4" />
           <element id="library" level="project" name="Maven: org.springframework.security:spring-security-crypto:6.1.4" />
+          <element id="library" level="project" name="Maven: org.json:json:20230618" />
         </element>
       </element>
       <element id="directory" name="META-INF">

@@ -1,10 +1,10 @@
 <component name="ArtifactManager">
-  <artifact type="exploded-war" name="Hotel Micro Service:war exploded">
-    <output-path>$PROJECT_DIR$/Hotel Micro Service/target/hotel_micro_service-0.0.1-SNAPSHOT</output-path>
+  <artifact type="exploded-war" name="Guide Micro Service:war exploded">
+    <output-path>$PROJECT_DIR$/Guide Micro Service/target/guide_micro_service-1.0-SNAPSHOT</output-path>
     <properties id="maven-jee-properties">
       <options>
         <exploded>true</exploded>
-        <module>Hotel Micro Service</module>
+        <module>Guide Micro Service</module>
         <packaging>war</packaging>
         <unpackNestedArchives>false</unpackNestedArchives>
       </options>
@@ -12,7 +12,7 @@
     <root id="root">
       <element id="directory" name="WEB-INF">
         <element id="directory" name="classes">
-          <element id="module-output" name="Hotel Micro Service" />
+          <element id="module-output" name="Guide Micro Service" />
         </element>
         <element id="directory" name="lib">
           <element id="library" level="project" name="Maven: org.springframework.boot:spring-boot-starter-data-jpa:3.1.4" />
@@ -87,9 +87,9 @@
         </element>
       </element>
       <element id="directory" name="META-INF">
-        <element id="file-copy" path="$PROJECT_DIR$/Hotel Micro Service/target/hotel_micro_service-0.0.1-SNAPSHOT/META-INF/MANIFEST.MF" />
+        <element id="file-copy" path="$PROJECT_DIR$/Guide Micro Service/target/guide_micro_service-1.0-SNAPSHOT/META-INF/MANIFEST.MF" />
       </element>
-      <element id="javaee-facet-resources" facet="Hotel Micro Service/web/Web" />
+      <element id="javaee-facet-resources" facet="Guide Micro Service/web/Web" />
     </root>
   </artifact>
 </component>

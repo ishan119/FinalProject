@@ -6,18 +6,20 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class GuideDTO {
-
     private int id;
-    private String hotelname;
+    private String name;
     private String address;
-    private LocalDate birthday;
     private String contact;
-    private String mdv;
-    private String experiance;
-    private String remarks;
+    private LocalDate birthDate;
+    private double manDayValue;
+    private String experience;
+    private byte[] guideIdFront;
+    private byte[] guideIdRear;
+    private byte[] nicFront;
+    private byte[] nicRear;
+    private byte[] profilePic;
 }
