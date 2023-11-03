@@ -13,16 +13,18 @@ public interface UserRepo extends CrudRepository<User, Integer> {
 
     User findByEmail(String email);
     void deleteByEmail(String email);
-
     @Modifying
     @Transactional
-    @Query(value = "update user u set u.profile_pic = ? , u.nic_front_img = ? ," +
+    @Query(value = "update user u set u.profile_pic = ? , u.nic_front_img = ? , " +
             "u.nic_rear_img = ? where u.email = ?",
             nativeQuery = true)
-    void updateImages(String ProfilePic, String nicFrontImg,String nicRearImg, String email);
+    void updateImages(String profilePic,String nicFrontImg,String nicRearImg, String email);
 
     @Modifying
-    @Query("UPDATE User u SET u.username = :username, u.password = :password, u.usernic = :usernic, u.contact = :contact, u.birthday = :birthday, u.gender = :gender, u.remarks = :remarks WHERE  u.email = :email")
+    @Query("UPDATE User u SET u.username = :username, u.password = :password, u.usernic =" +
+            " :usernic, u.contact = :contact, u.birthday = :birthday, u.gender = :gender, " +
+            "u.remarks = :remarks, u.nicFrontImg=:nicFrontImg , u.nicRearImg = :nicRearImg," +
+            "u.profilePic =:profilePic WHERE u.email = :email")
     void updateUserInfoByEmail(
             String username,
             String password,
@@ -31,6 +33,9 @@ public interface UserRepo extends CrudRepository<User, Integer> {
             String email,
             Date birthday,
             String gender,
-            String remarks
+            String remarks,
+            String nicFrontImg,
+            String nicRearImg,
+            String profilePic
     );
 }

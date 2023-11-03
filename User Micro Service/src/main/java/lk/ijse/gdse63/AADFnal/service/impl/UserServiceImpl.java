@@ -10,7 +10,6 @@ import lk.ijse.gdse63.AADFnal.exeption.UserNotFoundException;
 import lk.ijse.gdse63.AADFnal.repo.UserRepo;
 import lk.ijse.gdse63.AADFnal.service.UserService;
 import jakarta.transaction.Transactional;
-import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.modelmapper.ModelMapper;
@@ -21,10 +20,8 @@ import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -33,21 +30,20 @@ import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
-    @Value("http://localhost:8080/api/v1/login")
-
+    @Value("${admin.data}")
     private String adminDataEndPoint;
+    private final UserRepo userRepo;
 
-    private final UserRepo userRepository;
     private final ModelMapper modelMapper;
-
-    public UserServiceImpl(UserRepo userRepository, ModelMapper mapper){
-        this.userRepository = userRepository;
-        this.modelMapper=mapper;
+    public UserServiceImpl (UserRepo userRepo,ModelMapper mapper){
+        this.userRepo = userRepo;
+        this.modelMapper = mapper;
     }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email);
+        User user = userRepo.findByEmail(email);
+        System.out.println(user);
         List<String> roles = new ArrayList<>();
         roles.add("user");
         UserDetails userDetails =
@@ -59,14 +55,16 @@ public class UserServiceImpl implements UserService {
         return userDetails;
     }
 
-
     @Override
     public UserDTO searchUserByEmail(String email) throws UserNotFoundException {
         try {
-            User byEmail = userRepository.findByEmail(email);
+            User byEmail = userRepo.findByEmail(email);
             System.out.println(byEmail);
             UserDTO map = modelMapper.map(byEmail, UserDTO.class);
+            if (byEmail.getBirthday() != null)
+                map.setBirthday(byEmail.getBirthday().toLocalDate());
             importImages(byEmail,map);
+            //map.setNicImgs(jsonStringToArray(byEmail.getNicImgs()));
             return map;
         }catch (Exception e){
             e.printStackTrace();
@@ -75,15 +73,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void updateUser(UserDTO email) throws UpdateFailException {
-        try{
+        try {
             User user = modelMapper.map(email, User.class);
-            userRepository.updateUserInfoByEmail(user.getUsername(), user.getPassword(), user.getUsernic(),
-                    user.getContact(), user.getEmail(), user.getBirthday(), user.getGender(), user.getRemarks());
-        }catch (Exception e){
-            throw new UpdateFailException("Operation Failed" ,e );
-        }
+            User byEmail = userRepo.findByEmail(email.getEmail());
+            user.setBirthday(Date.valueOf(email.getBirthday()));
+            deleteImages(email,byEmail);
+            exportImages(email,user);
+            userRepo.updateUserInfoByEmail(user.getUsername(),user.getPassword(), user.getUsernic(), user.getContact(),
+                    user.getEmail(), user.getBirthday(), user.getGender(), user.getRemarks(), user.getNicFrontImg(),
+                    user.getNicRearImg(),user.getProfilePic());
 
+        }catch (Exception e){
+            throw new UpdateFailException("Operation Failed",e);
+        }
     }
 
     @Override
@@ -91,23 +95,34 @@ public class UserServiceImpl implements UserService {
     public int addUsers(UserDTO userDTO) throws CreateFailException {
         try {
             User user = modelMapper.map(userDTO, User.class);
-            User save = userRepository.save(user);
+            User save = userRepo.save(user);
             exportImages(userDTO,user);
-            userRepository.updateImages(save.getProfilePic(), save.getNicFrontImg(), save.getNicRearImg(), save.getEmail());
+            userRepo.updateImages(save.getProfilePic(),save.getNicFrontImg(),save.getNicRearImg(),save.getEmail());
             return save.getId();
-        }catch (Exception e ){
-            throw new CreateFailException("Operation Failed" ,e );
+        }catch (Exception e){
+            throw new CreateFailException("Operation Failed",e);
+        }
+    }
+
+    private void deleteImages(UserDTO userDTO, User byEmail) {
+        if (userDTO.getProfilePicByte()!=null){
+            boolean delete = new File(byEmail.getProfilePic()).delete();
+        }
+        if (userDTO.getNicFrontByte()!=null){
+            boolean delete = new File(byEmail.getNicFrontImg()).delete();
+        }
+        if (userDTO.getNicRearByte()!=null){
+            boolean delete = new File(byEmail.getNicRearImg()).delete();
         }
     }
 
     @Override
     public void deleteUser(String email) throws DeleteFailException {
         try {
-            userRepository.deleteByEmail(email);
+            userRepo.deleteByEmail(email);
         }catch (Exception e){
-            throw new DeleteFailException("Operation Failed" ,e );
+            throw new DeleteFailException("Operation Failed",e);
         }
-
     }
 
     @Override
@@ -116,61 +131,65 @@ public class UserServiceImpl implements UserService {
     }
 
     ArrayList<String> jsonStringToArray(String jsonString) throws JSONException {
-        ArrayList<String> stringArray = new ArrayList<>();
-
-
+        ArrayList<String> stringArray = new ArrayList<String>();
         JSONArray jsonArray = new JSONArray(jsonString);
-
-        for (int i =0; i<jsonArray.length();i++){
+        for (int i = 0; i < jsonArray.length(); i++) {
             stringArray.add(jsonArray.getString(i));
         }
         return stringArray;
     }
 
-    public void exportImages(UserDTO userDTO, User user) throws Exception{
-        String dt = LocalDate.now().toString().replace("-" , "_" ) + "__"
-                + LocalTime.now().toString().replace(":" , "_");
+    public void exportImages(UserDTO userDTO,User user) throws IOException {
+        String dt = LocalDate.now().toString().replace("-", "_") + "__"
+                + LocalTime.now().toString().replace(":", "_");
 
-        InputStream is = new ByteArrayInputStream(userDTO.getProfilePicByte());
-        BufferedImage bi = ImageIO.read(is);
-        File outputFile = new File("images/pto_pic/"+dt+ ".jpg");
-        ImageIO.write(bi, "jpg", outputFile);
-        user.setProfilePic(outputFile.getAbsolutePath());
+        if (userDTO.getProfilePicByte() != null){
+            InputStream is = new ByteArrayInputStream(userDTO.getProfilePicByte());
+            BufferedImage bi = ImageIO.read(is);
+            File outputfile = new File("images/user/pro_pic/"+dt+ ".jpg");
+            ImageIO.write(bi, "jpg", outputfile);
+            user.setProfilePic(outputfile.getAbsolutePath());
+        }
 
-        InputStream is1 = new ByteArrayInputStream(userDTO.getNicFrontByte());
-        BufferedImage bi1 = ImageIO.read(is1);
-        File outputFile1 = new File("images/nic_front/"+dt+ ".jpg");
-        ImageIO.write(bi1, "jpg", outputFile1);
-        user.setNicFrontImg(outputFile1.getAbsolutePath());
+        if (userDTO.getNicFrontByte() != null){
+            InputStream is1 = new ByteArrayInputStream(userDTO.getNicFrontByte());
+            BufferedImage bi1 = ImageIO.read(is1);
+            File outputfile1 = new File("images/user/nic_front/"+dt+ ".jpg");
+            ImageIO.write(bi1, "jpg", outputfile1);
+            user.setNicFrontImg(outputfile1.getAbsolutePath());
+        }
 
-        InputStream is2 = new ByteArrayInputStream(userDTO.getNicRearByte());
-        BufferedImage bi2 = ImageIO.read(is2);
-        File outputFile2 = new File("images/nic_rear/"+dt+ ".jpg");
-        ImageIO.write(bi2, "jpg", outputFile2);
-        user.setNicRearImg(outputFile2.getAbsolutePath());
+        if (userDTO.getNicRearByte() != null){
+            InputStream is2 = new ByteArrayInputStream(userDTO.getNicRearByte());
+            BufferedImage bi2 = ImageIO.read(is2);
+            File outputfile2 = new File("images/user/nic_rear/"+dt+ ".jpg");
+            ImageIO.write(bi2, "jpg", outputfile2);
+            user.setNicRearImg(outputfile2.getAbsolutePath());
+        }
 
     }
 
-    public void importImages(User user, UserDTO userDTO) throws IOException {
 
+    public void importImages(User user,UserDTO userDTO) throws IOException {
         BufferedImage read = ImageIO.read(new File(user.getProfilePic()));
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(read, "jpg" , baos);
+        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+        ImageIO.write(read, "jpg", baos);
         byte[] bytes = baos.toByteArray();
         userDTO.setProfilePic(Base64.getEncoder().encodeToString(bytes));
 
-        BufferedImage read1 = ImageIO.read(new File(user.getNicFrontImg()));
-        ByteArrayOutputStream baos1 = new ByteArrayOutputStream();
-        ImageIO.write(read1, "jpg" , baos1);
-        byte[] bytes1 = baos.toByteArray();
-        userDTO.setProfilePic(Base64.getEncoder().encodeToString(bytes1));
+        read = ImageIO.read(new File(user.getNicFrontImg()));
+        baos = new java.io.ByteArrayOutputStream();
+        ImageIO.write(read, "jpg", baos);
+        bytes = baos.toByteArray();
+        userDTO.setNicFront(Base64.getEncoder().encodeToString(bytes));
+        userDTO.setNicFrontByte(bytes);
 
-        BufferedImage read2 = ImageIO.read(new File(user.getNicRearImg()));
-        ByteArrayOutputStream baos2 = new ByteArrayOutputStream();
-        ImageIO.write(read2, "jpg" , baos2);
-        byte[] bytes2 = baos2.toByteArray();
-        userDTO.setProfilePic(Base64.getEncoder().encodeToString(bytes2));
-
+        read = ImageIO.read(new File(user.getNicRearImg()));
+        baos = new ByteArrayOutputStream();
+        ImageIO.write(read, "jpg", baos);
+        bytes = baos.toByteArray();
+        userDTO.setNicRear(Base64.getEncoder().encodeToString(bytes));
+        userDTO.setNicRearByte(bytes);
     }
 
 }
